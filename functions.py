@@ -1,6 +1,25 @@
 import pandas as pd
 import numpy as np
 
+def m_corrective_error(nmocks,nvec,nparam):
+    """
+    nmocks : int : # of mocks used to estimate the covariance
+    nvec : int : size of the datavector AFTER applying the cuts
+    nparam : int : number of parameters of the model used
+    
+    return : m1,m2 : int : correctif factors to multiply the cov matrices of the inference parameters 
+                           (use m2 when the inference is performed on mocks used to estimate the covariance)
+    """
+    ##-- Correction facteur Dodelson 2013
+    A = 2 / ((nmocks-nvec-1)*(nmocks-nvec-4))
+    B = (nmocks-nvec-2) * A/2
+    m = 1+B*(nvec-nparam)
+    ##-- Correction from Percival 2014
+    m1 = m / (1+A+B*(nparam+1))
+    m2 = m1/(1 - (nvec + 1.)/(nmocks-1))
+    
+    return m1,m2
+
 class CGP:
     """
     Combine parameters constraints according to [Sanchez et al 2016]
